@@ -8,14 +8,14 @@ public class BarcodeItem {
 
     private int id;
     private Uri barCodeImageUri;
-    private String barcodeContents ="";
+    private String barcodeContents = "";
     private LiveData<Boolean> isLoading;
     private MutableLiveData<Boolean> _isLoading;
 
     public BarcodeItem() {
-        _isLoading=new MutableLiveData<>();
+        _isLoading = new MutableLiveData<>();
         _isLoading.setValue(true);
-       isLoading= _isLoading;
+        isLoading = _isLoading;
     }
 
     public int getId() {
