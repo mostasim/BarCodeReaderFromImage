@@ -9,6 +9,8 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView textView;
+    Button btMultipleMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,34 +45,38 @@ public class MainActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
+        btMultipleMode = findViewById(R.id.btMultipleMode);
+
+        btMultipleMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, BarcodeListActivity.class));
+            }
+        });
 
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
-
-
     }
+
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == PICK_IMAGE && data!=null) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_IMAGE && data != null) {
             try {
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 imageView.setImageBitmap(selectedImage);
-                bMap =selectedImage;
+                bMap = selectedImage;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
             }
 
-            try{
+            try {
                 String contents = null;
-
-                int[] intArray = new int[bMap.getWidth()*bMap.getHeight()];
-//copy pixel data from the Bitmap into the 'intArray' array
+                int[] intArray = new int[bMap.getWidth() * bMap.getHeight()];
                 bMap.getPixels(intArray, 0, bMap.getWidth(), 0, 0, bMap.getWidth(), bMap.getHeight());
 
                 LuminanceSource source = new RGBLuminanceSource(bMap.getWidth(), bMap.getHeight(), intArray);
@@ -79,14 +86,11 @@ public class MainActivity extends AppCompatActivity {
                 Result result = reader.decode(bitmap);
                 contents = result.getText();
                 textView.setText(contents);
-                Log.e(TAG,contents);
-            }catch (Exception e){
+                Log.e(TAG, contents);
+            } catch (Exception e) {
                 textView.setText(e.toString());
-                 Log.e(TAG,e.toString());
+                Log.e(TAG, e.toString());
             }
-
-
-
         }
     }
 }
