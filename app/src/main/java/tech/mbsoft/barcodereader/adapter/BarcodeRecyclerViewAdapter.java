@@ -1,10 +1,10 @@
 package tech.mbsoft.barcodereader.adapter;
 
 import android.arch.lifecycle.Observer;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +30,6 @@ import com.google.zxing.common.HybridBinarizer;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import tech.mbsoft.barcodereader.BackgroundExecutor;
 import tech.mbsoft.barcodereader.BarcodeListActivity;
 import tech.mbsoft.barcodereader.R;
 
@@ -56,6 +55,7 @@ public class BarcodeRecyclerViewAdapter extends RecyclerView.Adapter<BarcodeRecy
     public void onBindViewHolder(@NonNull BarcodeViewHolder barcodeViewHolder, int i) {
         BarcodeItem barcodeItem = barcodeItems.get(i);
         barcodeViewHolder.setUiItem(barcodeItem);
+
     }
 
     @Override
@@ -92,9 +92,9 @@ public class BarcodeRecyclerViewAdapter extends RecyclerView.Adapter<BarcodeRecy
                     }
                 });
 
-                BackgroundExecutor.handler = new Handler();
+                Handler handler = new Handler();
 
-                BackgroundExecutor.post(new Runnable() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -109,45 +109,28 @@ public class BarcodeRecyclerViewAdapter extends RecyclerView.Adapter<BarcodeRecy
                             Reader reader = new MultiFormatReader();
                             Result result = reader.decode(bitmap);
                             contents = result.getText();
-                            BackgroundExecutor.postOnMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    barcodeItem.setIsLoading(false);
-                                    tvBarcodeInfo.setText(contents);
 
-                                }
-                            });
+                            tvBarcodeInfo.setText(contents);
+                            barcodeItem.setIsLoading(false);
+
                             Log.e(TAG, contents);
                         } catch (FormatException e) {
                             e.printStackTrace();
-                            BackgroundExecutor.postOnMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    barcodeItem.setIsLoading(false);
-                                    tvBarcodeInfo.setText("No data found");
-                                }
-                            });
+                            barcodeItem.setIsLoading(false);
+                            tvBarcodeInfo.setText("No data found");
+
                         } catch (ChecksumException e) {
                             e.printStackTrace();
-                            BackgroundExecutor.postOnMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    barcodeItem.setIsLoading(false);
-                                    tvBarcodeInfo.setText("No data found");
-                                }
-                            });
+                            barcodeItem.setIsLoading(false);
+                            tvBarcodeInfo.setText("No data found");
                         } catch (NotFoundException e) {
                             e.printStackTrace();
-                            BackgroundExecutor.postOnMainThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    barcodeItem.setIsLoading(false);
-                                    tvBarcodeInfo.setText("No data found");
-                                }
-                            });
+                            barcodeItem.setIsLoading(false);
+                            tvBarcodeInfo.setText("No data found");
                         }
                     }
-                });
+                }, 1500);
+
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
