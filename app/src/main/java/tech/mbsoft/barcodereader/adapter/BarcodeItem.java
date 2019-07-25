@@ -8,11 +8,16 @@ public class BarcodeItem {
 
     private int id;
     private Uri barCodeImageUri;
-    private String barcodeContents = "";
+    private LiveData<String> barcodeContents;
+    private MutableLiveData<String> _barcodeContents;
+
     private LiveData<Boolean> isLoading;
     private MutableLiveData<Boolean> _isLoading;
 
     public BarcodeItem() {
+        _barcodeContents = new MutableLiveData<>();
+        _barcodeContents.setValue("");
+        barcodeContents=_barcodeContents;
         _isLoading = new MutableLiveData<>();
         _isLoading.setValue(true);
         isLoading = _isLoading;
@@ -34,12 +39,12 @@ public class BarcodeItem {
         this.barCodeImageUri = barCodeImageUri;
     }
 
-    public String getBarcodeContents() {
+    public LiveData<String> getBarcodeContents() {
         return barcodeContents;
     }
 
     public void setBarcodeContents(String barcodeContents) {
-        this.barcodeContents = barcodeContents;
+        _barcodeContents.postValue(barcodeContents);
     }
 
     public LiveData<Boolean> getIsLoading() {
@@ -47,6 +52,7 @@ public class BarcodeItem {
     }
 
     public void setIsLoading(Boolean loading) {
-        _isLoading.setValue(loading);
+//        _isLoading.setValue(loading);
+        _isLoading.postValue(loading);
     }
 }

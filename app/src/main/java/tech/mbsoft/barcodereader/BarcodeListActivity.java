@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import tech.mbsoft.barcodereader.adapter.BarcodeItem;
 import tech.mbsoft.barcodereader.adapter.BarcodeRecyclerViewAdapter;
+import tech.mbsoft.barcodereader.thread.Worker;
 
 public class BarcodeListActivity extends AppCompatActivity {
 
@@ -20,6 +21,7 @@ public class BarcodeListActivity extends AppCompatActivity {
     private RecyclerView rvBarcodeList;
     private ArrayList<BarcodeItem> barcodeItems;
     private BarcodeRecyclerViewAdapter adapter;
+    private Worker worker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +29,7 @@ public class BarcodeListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_barcode_list);
 
         initUI();
-
+        worker = new Worker();
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -38,7 +40,7 @@ public class BarcodeListActivity extends AppCompatActivity {
     private void initUI() {
         rvBarcodeList = findViewById(R.id.rv_barcode_list);
         barcodeItems = new ArrayList<>();
-        adapter = new BarcodeRecyclerViewAdapter(BarcodeListActivity.this, barcodeItems);
+        adapter = new BarcodeRecyclerViewAdapter(BarcodeListActivity.this, barcodeItems,worker);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayout.VERTICAL);
         rvBarcodeList.setLayoutManager(layoutManager);
@@ -67,11 +69,17 @@ public class BarcodeListActivity extends AppCompatActivity {
                     barcodeItems.add(barcodeItem);
                 }
                 Log.e("SIZE", barcodeItems.size() + "");
-                adapter = new BarcodeRecyclerViewAdapter(BarcodeListActivity.this, barcodeItems);
+                adapter = new BarcodeRecyclerViewAdapter(BarcodeListActivity.this, barcodeItems, worker);
                 rvBarcodeList.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        worker.quit();
     }
 }
